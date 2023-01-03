@@ -11,7 +11,7 @@ namespace UnityMvvmToolkit.Common
     public abstract class MonoBehaviourView<TBindingContext> : MonoBehaviour
         where TBindingContext : class, INotifyPropertyChanged
     {
-        private View<TBindingContext> _view;
+        protected View<TBindingContext> _view;
 
         public TBindingContext BindingContext => _view.BindingContext;
 
