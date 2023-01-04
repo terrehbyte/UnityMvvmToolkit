@@ -11,31 +11,57 @@ namespace UnityMvvmToolkit.Common
     public abstract class MonoBehaviourView<TBindingContext> : MonoBehaviour
         where TBindingContext : class, INotifyPropertyChanged
     {
-        protected View<TBindingContext> _view;
+        protected View<TBindingContext> view;
 
-        public TBindingContext BindingContext => _view.BindingContext;
+        public TBindingContext BindingContext => view.BindingContext;
 
-        private void Awake()
+        protected virtual void Awake()
         {
-            _view = CreateView(GetBindingContext(), GetBindableElementsFactory());
+            Init();
+        }
 
+        protected virtual void OnEnable()
+        {
+            Debug.Assert(view != null, "Cannot enable bindings on view if view is null");
+            view.EnableBinding();
+        }
+
+        protected virtual void OnDisable()
+        {
+            Debug.Assert(view != null, "Cannot disable bindings on view if view is null");
+            view.DisableBinding();
+        }
+
+        protected virtual void OnDestroy()
+        {
+            view.Dispose();
+        }
+
+        /// <summary>
+        /// <p>
+        /// One-time initialization of the view and its bindings.
+        /// </p>
+        /// <p>
+        /// <b>Automatically called in Awake, unless overriden in derived classes.</b>
+        /// </p>
+        /// <p>
+        /// Should be called before before enabling or disabling any
+        /// data-binding operations.
+        /// </p>
+        /// </summary>
+        /// <remarks>
+        /// This prepares the view for use, creating any underlying objects
+        /// such as the view implementation and viewmodel instance before
+        /// setting up any data bindings.
+        /// </remarks>
+        protected void Init()
+        {
+            view = CreateView(GetBindingContext(), GetBindableElementsFactory());
+
+            Debug.Assert(view != null, "Failed to create view.");
+            
             OnInit();
             BindElements();
-        }
-
-        private void OnEnable()
-        {
-            _view.EnableBinding();
-        }
-
-        private void OnDisable()
-        {
-            _view.DisableBinding();
-        }
-
-        private void OnDestroy()
-        {
-            _view.Dispose();
         }
 
         protected abstract void OnInit();
@@ -75,7 +101,7 @@ namespace UnityMvvmToolkit.Common
         {
             foreach (var bindableUIElement in GetBindableUIElements())
             {
-                _view.RegisterBindableElement(bindableUIElement, true);
+                view.RegisterBindableElement(bindableUIElement, true);
             }
         }
     }
