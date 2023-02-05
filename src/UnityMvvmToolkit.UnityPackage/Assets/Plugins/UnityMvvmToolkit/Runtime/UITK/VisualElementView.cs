@@ -11,11 +11,29 @@ namespace UnityMvvmToolkit.UITK
     public class VisualElementView<TBindingContext> : MonoBehaviourView<TBindingContext>
         where TBindingContext : class, INotifyPropertyChanged
     {
-        public VisualElement RootVisualElement { get; protected set; }
+        private VisualElement rootVisualElement;
+        public VisualElement RootVisualElement
+        {
+            set => rootVisualElement = value;
+            get
+            {
+                // HACK: guard against use before initialization
+                if (rootVisualElement == null)
+                {
+                    Init();
+                }
+
+                return rootVisualElement;
+            }
+        }
 
         protected override void OnInit()
         {
-            RootVisualElement = GetRootVisualElement();
+            // HACK: guard against use before initialization
+            if (rootVisualElement == null)
+            {
+                rootVisualElement = GetRootVisualElement();
+            }
         }
 
         /// <summary>
